@@ -1,0 +1,9 @@
+*.txt
+chromedriver
+*.log
+.idea/
+test-output/
+phantomjs
+*.json
+resources/
+quick_tutorial/
