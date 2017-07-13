@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+
+
+<body>
+
+<div class="ui-widget" id="search-box" data-suggestions="{{ suggestions }}" data-playlist="{{ playlist }}">
+    <label for="tags">Tags:  </label>
+    <input id="tags">
+    <button id="add-btn">Add to playlist</button>
+    <div id="tagsname"></div>
+</div>
+
+<h2>Create me a playlist based on these songs </h2>
+
+<div id="songs">
+    <ul>
+        {% for song in playlist %}
+            <li value="{{ song }}">{{ song }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<button id="submit-playlist-btn">Submit the playlist</button>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="../static/js/test.js"></script>
+</body>
+</html>

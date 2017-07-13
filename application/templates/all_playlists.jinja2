@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="/show_selected_playlist">
+<select name="playlist_id">
+  {% for playlist in playlists %}
+      <option value="{{ playlist._id }}">{{ playlist._title }}</option>
+  {% endfor %}
+</select>
+<input type="submit" value="Submit">
+</form>
+
+<p>Choose a car, and click the "Submit" button to send input to the server.</p>
+
+</body>
+</html>

@@ -1,18 +1,17 @@
-import json
-
 import httplib2
-from apiclient import discovery
 from apiclient.discovery import build
+from controllers.get_youtube_playlist import list_playlists_mine, create_playlists, playlist_items_list_by_playlist_id, \
+    get_playlist_songs
 from oauth2client import client
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import (
     view_config
 )
-
+from controllers.suggestions.get_suggestions import create_suggestion_list
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
 # the OAuth 2.0 information for this application, including its client_id and
 # client_secret.
-CLIENT_SECRETS_FILE = "client_secrets.json"
+CLIENT_SECRETS_FILE = '/home/laurynas/workspace/suggest_playlist/application/client_secrets.json'
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account and requires requests to use an SSL connection.
@@ -29,7 +28,7 @@ class TutorialViews:
     def __init__(self, request):
         self.request = request
 
-    @view_config(route_name='home', renderer='json')
+    @view_config(route_name='home', renderer='all_playlists.jinja2')
     def index(self):
         print "Im home  "
         if 'credentials' not in self.request.session:
@@ -39,44 +38,74 @@ class TutorialViews:
             return HTTPFound(location=self.request.route_url('redirect'))
         else:
             http_auth = credentials.authorize(httplib2.Http())
-            youtube = discovery.build('youtube', 'v3', http_auth)
-            channel = youtube.channels().list(mine=True, part='snippet').execute()
-
             service = build(API_SERVICE_NAME, API_VERSION,
-                            http=credentials.authorize(httplib2.Http()))
+                            http=http_auth)
 
-            playlists = list_playlists_mine(service,
-                                           part='snippet,contentDetails',
-                                           mine=True)
+            playlists_info = list_playlists_mine(service,
+                                                 part='snippet,contentDetails',
+                                                 mine=True)
 
-            create_playlists(playlists, service)
+            playlists_instances = create_playlists(playlists_info)
+            #
+            # playlist = playlist_items_list_by_playlist_id(service,
+            #                                               part='snippet,contentDetails',
+            #                                               maxResults=25,
+            #                                               playlistId='PL4CnV3w6P34VBu2llSwQ7bDCuJ14HfL2h')
 
-            playlist = playlist_items_list_by_playlist_id(service,
-                                                          part='snippet,contentDetails',
-                                                          maxResults=25,
-                                                          playlistId='PL4CnV3w6P34VBu2llSwQ7bDCuJ14HfL2h')
+            return {'playlists': playlists_instances}
 
-            return json.dumps(playlist)
+    @view_config(route_name='selected_playlist', renderer='playlist.jinja2')
+    def show_songs(self):
+        titles = ['Fake Plastic - Radiohead', 'Apocalypse Dreams - Tame Impala', 'Alter Ego - Tame Imapala',
+                  "The Look - Metronomy"]
+
+        # if self.request.GET.get('title'):
+        #     return {'playlist': playlist_songs, 'suggestions': titles}
+
+        if 'credentials' not in self.request.session:
+            return HTTPFound(location=self.request.route_url('redirect'))
+        credentials = client.OAuth2Credentials.from_json(self.request.session['credentials'])
+        if credentials.access_token_expired:
+            return HTTPFound(location=self.request.route_url('redirect'))
+        else:
+            http_auth = credentials.authorize(httplib2.Http())
+            service = build(API_SERVICE_NAME, API_VERSION,
+                            http=http_auth)
+            playlist_id = self.request.GET.get('playlist_id')
+            playlist_info = playlist_items_list_by_playlist_id(service,
+                                                               part='snippet,contentDetails',
+                                                               maxResults=25,
+                                                               playlistId=playlist_id)
+
+            playlist_songs = get_playlist_songs(playlist_info)
+
+            return {'playlist': playlist_songs, 'suggestions': titles, 'playlist_id': playlist_id}
 
     @view_config(route_name='authorized', renderer='home.jinja2')
     def authorized(self):
         print "Authorized"
         return {}
 
+    @view_config(route_name='results', renderer='results.jinja2')
+    def results(self):
+        print "results"
+
+        user_playlist = [title for typ, title in self.request.POST._items]
+        user_playlist = user_playlist[0].split(",")
+        result_list = create_suggestion_list(user_playlist)
+        return {"result_playlist": result_list}
+
     @view_config(route_name='redirect')
     def oauth2callback(self):
         print "AGAAIN"
         flow = client.flow_from_clientsecrets(
-            '/home/laurynas/workspace/suggest_playlist/application/client_secrets.json',
-            scope='https://www.googleapis.com/auth/youtube.force-ssl',
+            CLIENT_SECRETS_FILE,
+            scope=YOUTUBE_READ_WRITE_SSL_SCOPE,
             redirect_uri=self.request.route_url('redirect'))
         flow.params['include_granted_scopes'] = 'true'
-        print self.request.GET
         if 'code' not in self.request.GET:
             auth_uri = flow.step1_get_authorize_url()
             print "not found  code in url"
-            print self.request.urlvars
-            print self.request.urlargs
             return HTTPFound(location=auth_uri)
         else:
             print "Foound code in url"
@@ -88,62 +117,11 @@ class TutorialViews:
                             http=credentials.authorize(httplib2.Http()))
 
             print list_playlists_mine(service,
-                                     part='snippet,contentDetails',
-                                     mine=True)
+                                      part='snippet,contentDetails',
+                                      mine=True)
 
             return HTTPFound(location=self.request.route_url('authorized'))
 
             # @view_config(route_name='hello')
             # def hello(self):
             #     return {'name': 'Hello View'}
-
-
-def print_results(results):
-    print(results)
-
-
-# Remove keyword arguments that are not set
-def remove_empty_kwargs(**kwargs):
-    good_kwargs = {}
-    if kwargs is not None:
-        for key, value in kwargs.iteritems():
-            if value:
-                good_kwargs[key] = value
-    return good_kwargs
-
-
-### END BOILERPLATE CODE
-
-# Sample python code for channels.list
-
-def list_playlists_mine(service, **kwargs):
-    kwargs = remove_empty_kwargs(**kwargs)  # See full sample for function
-    results = service.playlists().list(
-        **kwargs
-    ).execute()
-    return results
-
-
-def playlist_items_list_by_playlist_id(service, **kwargs):
-    kwargs = remove_empty_kwargs(**kwargs)  # See full sample for function
-    results = service.playlistItems().list(
-        **kwargs
-    ).execute()
-    return results
-
-
-def get_playlist_songs(service, playlist_id):
-    playlist = playlist_items_list_by_playlist_id(service,
-                                                  part='snippet,contentDetails',
-                                                  maxResults=50,
-                                                  playlistId=playlist_id)
-
-    for song in playlist[u'items']:
-        print song[u'snippet'][u'title']
-
-def create_playlists(playlists, service):
-    titles_by_ids = {}
-    for playlist in playlists[u'items']:
-        titles_by_ids[playlist[u'id']] = (playlist[u'snippet'][u'title'])
-        print "--------", playlist[u'snippet'][u'title'], "---------------"
-        get_playlist_songs(service, playlist[u'id'])
