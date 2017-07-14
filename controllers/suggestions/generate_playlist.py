@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 import numpy as np
-
 from network import load_network
 from song import load_songs
 
@@ -11,8 +10,10 @@ NUMBER_SOURCES = 20000
 def get_n_list_intersection(dics):
     lists = []
     inter = []
+
     for el in dics:
         lists.append(el.keys())
+
     keyword_inter = list(set(lists[0]).intersection(*lists))
 
     for key in keyword_inter:
@@ -22,6 +23,8 @@ def get_n_list_intersection(dics):
 
 
 def chunkify_playlist(playlist, chunk_size):
+    if chunk_size > len(playlist):
+        return np.array_split(playlist, len(playlist))
     return np.array_split(playlist, len(playlist) / chunk_size)
 
 
@@ -45,6 +48,7 @@ def get_number_of_songs_from_list_artists(artists):
 
 
 def get_suggestions(required_suggestions, required_unique_bands, playlist, network, chunk_size=3):
+
     chunks = chunkify_playlist(playlist, chunk_size)
 
     order = 2
@@ -56,7 +60,11 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, netwo
         for chunk in chunks:
             neighbours = []
             for artist in chunk:
-                neighbours.append(network.get_source_by_title(artist).get_n_order_neighbours(order, network))
+                source = network.get_source_by_title(artist)
+                if source:
+                    neighbours.append(network.get_source_by_title(artist).get_n_order_neighbours(order, network))
+            if not neighbours:
+                return
             all_intersections.append(get_n_list_intersection(neighbours))
 
         unique_bands, possible_suggestions = get_total_suggestions(all_intersections)

@@ -2,12 +2,14 @@ import httplib2
 from apiclient.discovery import build
 from controllers.get_youtube_playlist import list_playlists_mine, create_playlists, playlist_items_list_by_playlist_id, \
     get_playlist_songs
+from controllers.suggestions.get_suggestions import create_suggestion_list
+from controllers.suggestions.network import load_network_with_songs
 from oauth2client import client
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import (
     view_config
 )
-from controllers.suggestions.get_suggestions import create_suggestion_list
+
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
 # the OAuth 2.0 information for this application, including its client_id and
 # client_secret.
@@ -22,11 +24,15 @@ API_VERSION = "v3"
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = "WARNING: Please configure OAuth 2.0"
+NUMBER_SOURCES = 10000
+NETWORK_DIR = "/home/laurynas/workspace/suggest_playlist/application/resources/network.txt"
+SONGS_DIR = "/home/laurynas/workspace/suggest_playlist/application/resources/songs_already_visited.txt"
 
 
 class TutorialViews:
     def __init__(self, request):
         self.request = request
+        self.network = load_network_with_songs(NETWORK_DIR, SONGS_DIR, NUMBER_SOURCES)
 
     @view_config(route_name='home', renderer='all_playlists.jinja2')
     def index(self):
@@ -56,8 +62,7 @@ class TutorialViews:
 
     @view_config(route_name='selected_playlist', renderer='playlist.jinja2')
     def show_songs(self):
-        titles = ['Fake Plastic - Radiohead', 'Apocalypse Dreams - Tame Impala', 'Alter Ego - Tame Imapala',
-                  "The Look - Metronomy"]
+        titles = self.network.prepare_songs_search_box()
 
         # if self.request.GET.get('title'):
         #     return {'playlist': playlist_songs, 'suggestions': titles}
@@ -92,7 +97,8 @@ class TutorialViews:
 
         user_playlist = [title for typ, title in self.request.POST._items]
         user_playlist = user_playlist[0].split(",")
-        result_list = create_suggestion_list(user_playlist)
+        result_list = create_suggestion_list(user_playlist, self.network)
+
         return {"result_playlist": result_list}
 
     @view_config(route_name='redirect')

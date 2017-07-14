@@ -1,10 +1,15 @@
 from node import Node
+from song import load_songs
 
 SOURCE_MARKER = "++"
+
+
 class Network:
     def __init__(self):
         self.members = {}
         self.sources = {}
+        self.songs = []
+        self.search_box = []
 
     def get_member_by_title(self, title):
         return self.members.get(title)
@@ -29,6 +34,12 @@ class Network:
     def get_members(self):
         return self.members
 
+    def register_new_song(self, song):
+        self.songs.append(song)
+        self.search_box.append(song.get_song_artist() + " - " + song.get_title())
+
+    def prepare_songs_search_box(self):
+        return self.search_box
 
 def load_network(network_file_dir, sources_to_load):
     network_file = open(network_file_dir, "r")
@@ -52,5 +63,15 @@ def load_network(network_file_dir, sources_to_load):
             neigh.append_incoming(source)
             source.append_outcoming(neigh)
         i += 1
+
+    return network
+
+
+def load_network_with_songs(network_file_dir, songs_file_dir, sources_to_load):
+    network = load_network(network_file_dir,
+                           sources_to_load)
+
+    load_songs(songs_file_dir,
+               sources_to_load, network)
 
     return network

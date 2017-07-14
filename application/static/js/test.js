@@ -4,9 +4,11 @@ $(function () {
 
     availableTags = availableTags.substring(2, availableTags.length - 2).split("', '");
 
-    console.log(availableTags);
     $("#tags").autocomplete({
-        source: availableTags
+        source:  function(request, response) {
+            var results = $.ui.autocomplete.filter(availableTags, request.term);
+            response(results.slice(0, 10));
+        }
     });
 });
 
@@ -20,7 +22,6 @@ $(document).ready(function () {
             if (!playlist.includes(ui.item.value)) {
                 $('#songs').find('ul').append(new_title);
                 playlist.push(ui.item.value);
-                console.log(playlist);
             }
         });
 
