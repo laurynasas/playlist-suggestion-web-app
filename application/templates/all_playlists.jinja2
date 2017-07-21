@@ -1,17 +1,23 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "base.html" %}
+{% block body %}
+    {{ super() }}
 
-<form action="/show_selected_playlist">
-<select name="playlist_id">
-  {% for playlist in playlists %}
-      <option value="{{ playlist._id }}">{{ playlist._title }}</option>
-  {% endfor %}
-</select>
-<input type="submit" value="Submit">
-</form>
+    <div class="jumbotron">
 
-<p>Choose a car, and click the "Submit" button to send input to the server.</p>
+        <h1>Select a playlist</h1>
 
-</body>
-</html>
+        <div class="list-group" id="songs">
+            {% for playlist in playlists %}
+                <a href="#" data-playlist-id="{{ playlist._id }}" class="list-group-item">{{ playlist._title }}</a>
+            {% endfor %}
+        </div>
+        <a class="btn btn-lg btn-success" href="#" id="submit-playlist-selection-btn" role="button">Submit my selection</a>
+
+    </div>
+
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+    <script src="../static/js/display_playlists.js"></script>
+
+{% endblock %}

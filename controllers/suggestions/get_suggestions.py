@@ -1,17 +1,19 @@
 from generate_playlist import get_suggestions
-from network import load_network_with_songs
-from song import load_songs
 
 
-def create_suggestion_list(input_playlist, network):
+def create_suggestion_list(input_playlist, network, required_suggestions=10, number_bands=3):
     NUMBER_SOURCES = 10000
 
-
+    print required_suggestions
+    print input_playlist
     # playlist = ["Jon Hopkins", "Radiohead", "Tame Impala", "Bonobo", "Coldplay", "Bon Iver", "Nirvana", "David Bowie",
     #             "The xx"]
     playlist = {}
+
     for song in input_playlist:
         data = song.split(" - ")
+        data = [el.replace("'", "").lstrip() for el in data]
+
         if len(data) < 2:
             continue
         if network.get_member_by_title(data[0]):
@@ -25,13 +27,14 @@ def create_suggestion_list(input_playlist, network):
 
         playlist[artist] = song_title
 
-    print playlist.keys()
+    print "keys--", playlist.keys()
     if not playlist.keys():
         return
 
-    suggestions = get_suggestions(required_suggestions=10, required_unique_bands=3, playlist=playlist.keys(),
+    suggestions = get_suggestions(required_suggestions=required_suggestions, required_unique_bands=number_bands,
+                                  playlist=playlist.keys(),
                                   network=network)
     if not suggestions:
         return
-    return [(el[0].get_title() + " by " + el[1].get_title()).decode('utf-8') for el in suggestions]
+    return suggestions
     # return playlist.keys()

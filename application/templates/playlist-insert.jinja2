@@ -1,0 +1,37 @@
+<section id="main-content">
+    <div id="guts">
+        <div class="form-group ui-widget" id="search-box" data-suggestions="{{ suggestions }}"
+             data-playlist="{{ playlist }}">
+            <label for="tags">Search for the song</label>
+            <input class="form-control autocomplete" id="tags">
+
+        </div>
+        <p>
+            <button type="button" class="btn btn-primary" id="add-btn">Add to playlist</button>
+        </p>
+        <div class="row" id="populate-container">
+            <h1>Suggest based on </h1>
+        </div>
+        <div class="list-group" id="songs">
+
+            {% for song in playlist %}
+                <li type="button" class="list-group-item list-group-item-action"
+                    value="{{ song }}">{{ song }}
+                    <button style="float: right; background-color: transparent;" type="button"
+                            class="btn btn-xs text-danger remove-btn glyphicon glyphicon-remove"></button>
+                </li>
+
+            {% endfor %}
+        </div>
+        <p>
+            Suggestions:
+            <input type="number" name="quantity" min="1" max="50" value="10" id="limit-input"/>
+        <p>
+            With
+            <input type="number" name="number-bands" min="1" max="50" value="3" id="limit-bands"/>
+            unique artists
+        <p><a class="btn btn-lg btn-success" href="#" id="submit-playlist-btn" role="button">Submit the
+            playlist</a>
+        </p>
+    </div>
+</section>

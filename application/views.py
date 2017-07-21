@@ -24,7 +24,7 @@ API_VERSION = "v3"
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = "WARNING: Please configure OAuth 2.0"
-NUMBER_SOURCES = 10000
+NUMBER_SOURCES = 1000
 NETWORK_DIR = "/home/laurynas/workspace/suggest_playlist/application/resources/network.txt"
 SONGS_DIR = "/home/laurynas/workspace/suggest_playlist/application/resources/songs_already_visited.txt"
 
@@ -34,9 +34,8 @@ class TutorialViews:
         self.request = request
         self.network = load_network_with_songs(NETWORK_DIR, SONGS_DIR, NUMBER_SOURCES)
 
-    @view_config(route_name='home', renderer='all_playlists.jinja2')
+    @view_config(route_name='select_playlist', renderer='all_playlists.jinja2')
     def index(self):
-        print "Im home  "
         if 'credentials' not in self.request.session:
             return HTTPFound(location=self.request.route_url('redirect'))
         credentials = client.OAuth2Credentials.from_json(self.request.session['credentials'])
@@ -60,46 +59,56 @@ class TutorialViews:
 
             return {'playlists': playlists_instances}
 
-    @view_config(route_name='selected_playlist', renderer='playlist.jinja2')
+    @view_config(route_name='home', renderer='playlist.jinja2')
+    @view_config(route_name='home', request_param='insert=1', renderer='playlist-insert.jinja2')
     def show_songs(self):
         titles = self.network.prepare_songs_search_box()
+        playlist_id = self.request.POST.get('playlist_id')
+        insert = 0
 
-        # if self.request.GET.get('title'):
-        #     return {'playlist': playlist_songs, 'suggestions': titles}
+        if playlist_id:
+            if 'credentials' not in self.request.session:
+                return HTTPFound(location=self.request.route_url('redirect'))
+            credentials = client.OAuth2Credentials.from_json(self.request.session['credentials'])
+            if credentials.access_token_expired:
+                return HTTPFound(location=self.request.route_url('redirect'))
+            else:
+                http_auth = credentials.authorize(httplib2.Http())
+                service = build(API_SERVICE_NAME, API_VERSION,
+                                http=http_auth)
+                playlist_id = self.request.POST.get('playlist_id')
+                playlist_info = playlist_items_list_by_playlist_id(service,
+                                                                   part='snippet,contentDetails',
+                                                                   maxResults=25,
+                                                                   playlistId=playlist_id)
 
-        if 'credentials' not in self.request.session:
-            return HTTPFound(location=self.request.route_url('redirect'))
-        credentials = client.OAuth2Credentials.from_json(self.request.session['credentials'])
-        if credentials.access_token_expired:
-            return HTTPFound(location=self.request.route_url('redirect'))
+                playlist_songs = get_playlist_songs(playlist_info)
+
+                return {'playlist': playlist_songs, 'suggestions': titles, 'playlist_id': playlist_id}
         else:
-            http_auth = credentials.authorize(httplib2.Http())
-            service = build(API_SERVICE_NAME, API_VERSION,
-                            http=http_auth)
-            playlist_id = self.request.GET.get('playlist_id')
-            playlist_info = playlist_items_list_by_playlist_id(service,
-                                                               part='snippet,contentDetails',
-                                                               maxResults=25,
-                                                               playlistId=playlist_id)
-
-            playlist_songs = get_playlist_songs(playlist_info)
-
-            return {'playlist': playlist_songs, 'suggestions': titles, 'playlist_id': playlist_id}
-
-    @view_config(route_name='authorized', renderer='home.jinja2')
-    def authorized(self):
-        print "Authorized"
-        return {}
+            return {'suggestions': titles}
 
     @view_config(route_name='results', renderer='results.jinja2')
     def results(self):
         print "results"
 
-        user_playlist = [title for typ, title in self.request.POST._items]
-        user_playlist = user_playlist[0].split(",")
-        result_list = create_suggestion_list(user_playlist, self.network)
-
+        user_playlist = self.request.POST.get('playlist')
+        user_limit = int(self.request.POST.get('limit'))
+        number_bands = int(self.request.POST.get('bands'))
+        user_playlist = user_playlist.split(",")
+        result_list = create_suggestion_list(user_playlist, self.network, required_suggestions=user_limit,
+                                             number_bands=number_bands)
+        if result_list:
+            result_list = [song for song, source in result_list]
         return {"result_playlist": result_list}
+
+    @view_config(route_name='about', renderer='about.jinja2')
+    def about(self):
+        return {}
+
+    @view_config(route_name='contact', renderer='contact.jinja2')
+    def contact(self):
+        return {}
 
     @view_config(route_name='redirect')
     def oauth2callback(self):
@@ -126,7 +135,7 @@ class TutorialViews:
                                       part='snippet,contentDetails',
                                       mine=True)
 
-            return HTTPFound(location=self.request.route_url('authorized'))
+            return HTTPFound(location=self.request.route_url('select_playlist'))
 
             # @view_config(route_name='hello')
             # def hello(self):

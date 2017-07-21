@@ -1,39 +1,49 @@
-<!doctype html>
-<html lang="en-US">
-<head>
+{% extends "base.html" %}
+{% block body %}
+    {{ super() }}
+    <div class="jumbotron">
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <section id="main-content">
+            <div id="guts">
+                <div class="form-group ui-widget" id="search-box" data-suggestions="{{ suggestions }}"
+                     data-playlist="{{ playlist }}">
+                    <label for="tags">Search for the song</label>
+                    <input class="form-control autocomplete" id="tags">
 
-</head>
+                </div>
+                <p>
+                    <button type="button" class="btn btn-primary" id="add-btn">Add to playlist</button>
+                </p>
+                <div class="row" id="populate-container">
+                    <h1>Suggest based on </h1>
+                </div>
+                <div class="list-group" id="songs">
 
+                    {% for song in playlist %}
+                        <li type="button" class="list-group-item list-group-item-action"
+                            value="{{ song }}">{{ song }}
+                            <button style="float: right; background-color: transparent;" type="button"
+                                    class="btn btn-xs text-danger remove-btn glyphicon glyphicon-remove"></button>
+                        </li>
 
-<body>
+                    {% endfor %}
+                </div>
+                <p>
+                    Suggestions:
+                    <input type="number" name="quantity" min="1" max="50" value="10" id="limit-input"/>
+                <p>
+                    With
+                    <input type="number" name="number-bands" min="1" max="50" value="3" id="limit-bands"/>
+                    unique artists
+                <p><a class="btn btn-lg btn-success" href="#" id="submit-playlist-btn" role="button">Submit the
+                    playlist</a>
+                </p>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+    <script src="../static/js/create_playlist.js"></script>
 
-<div class="ui-widget" id="search-box" data-suggestions="{{ suggestions }}" data-playlist="{{ playlist }}">
-    <label for="tags">Tags:  </label>
-    <input id="tags">
-    <button id="add-btn">Add to playlist</button>
-    <div id="tagsname"></div>
-</div>
-
-<h2>Create me a playlist based on these songs </h2>
-
-<div id="songs">
-    <ul>
-        {% for song in playlist %}
-            <li value="{{ song }}">{{ song }}</li>
-        {% endfor %}
-    </ul>
-</div>
-
-<button id="submit-playlist-btn">Submit the playlist</button>
-
-
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="../static/js/test.js"></script>
-</body>
-</html>
+{% endblock %}

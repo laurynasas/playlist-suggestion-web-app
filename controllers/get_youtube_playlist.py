@@ -40,7 +40,7 @@ def playlist_items_list_by_playlist_id(service, **kwargs):
 def get_playlist_songs(json_info):
     songs = []
     for song in json_info[u'items']:
-        songs.append(song[u'snippet'][u'title'])
+        songs.append((song[u'snippet'][u'title']).replace("\\", "").encode('utf-8'))
     return songs
 
 

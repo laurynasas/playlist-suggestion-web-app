@@ -86,6 +86,7 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, netwo
         for band in bands:
             if not band.get_songs():
                 nu_bands_included -= 1
+                bands.remove(band)
 
         possible_suggestions = get_number_of_songs_from_list_artists(bands)
 
