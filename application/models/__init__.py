@@ -1,12 +1,11 @@
+from application.models.song import db
 from song import Song, Artist, Base
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 NUMBER_SOURCES = 1000
 NETWORK_DIR = "/home/laurynas/workspace/suggest_playlist/application/resources/network.txt"
 SONGS_DIR = "/home/laurynas/workspace/suggest_playlist/application/resources/songs_already_visited.txt"
 SOURCE_MARKER = "++"
-db = scoped_session(sessionmaker())
 
 
 def populate():
@@ -38,9 +37,13 @@ def populate():
             if not similar_artist:
                 similar_artist = Artist(title=title)
                 db.add(similar_artist)
-            source.add_similar_artist(similar_artist)
+            ret = source.add_similar_artist(similar_artist)
+            if not ret:
+                i += 1
+                continue
+            db.add(ret)
         i += 1
-
+    db.commit()
     sources = 0
     while sources != NUMBER_SOURCES:
         print sources, "//", NUMBER_SOURCES
@@ -53,10 +56,11 @@ def populate():
             if not source:
                 source = Artist(title=title)
                 db.add(source)
+                db.commit()
             sources += 1
         else:
             source = db.query(Artist).filter(Artist.title == source.title).first()
-            new_song = Song(title=title, artist_id=source.id)
+            new_song = Song(title=title, artist_id=source.id, artist_title=source.title)
             db.add(new_song)
         line_counter += 1
 
