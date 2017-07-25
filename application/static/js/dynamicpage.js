@@ -1,16 +1,15 @@
 $(document).ready(function () {
     $('nav a').click(function (e) {
-        e.preventDefault();
         var $a = $(this);
-        var url = $a.attr('href');
-        if ($a.attr('href') == "/") {
-            // url += "?" + $.param({insert: 1});
-            location.reload();
+        if ($a.attr('href') != "/") {
+            e.preventDefault();
         }
+        var url = $a.attr('href');
         console.log(url);
-        $('#main-content').load(url);
+        if ($a.attr('href') != "/") {
 
-
+            $('#main-content').load(url);
+        }
 
     });
 });

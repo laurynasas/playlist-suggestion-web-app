@@ -1,5 +1,5 @@
-from application.models.song import db
-from song import Song, Artist, Base
+from application.models.database import db
+from database import Song, Artist, Base
 from sqlalchemy.exc import IntegrityError
 
 NUMBER_SOURCES = 1000

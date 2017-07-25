@@ -3,6 +3,8 @@ from setuptools import setup
 requires = [
     'pyramid',
     'pyramid_jinja2',
+    'alembic',
+    'psycopg2',
 ]
 
 setup(name='suggest_playlist',
@@ -11,4 +13,4 @@ setup(name='suggest_playlist',
       [paste.app_factory]
       main = application:main
       """,
-)
+      )

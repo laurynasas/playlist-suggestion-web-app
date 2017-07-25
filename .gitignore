@@ -20,6 +20,7 @@ eggs/
 .eggs/
 lib64/
 parts/
+external_dependancies/
 sdist/
 var/
 *.egg-info/

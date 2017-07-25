@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
     {{ super() }}
-    <div class="jumbotron">
 
-        <section id="main-content">
             <div id="guts">
                 <div class="form-group ui-widget" id="search-box" data-suggestions="{{ suggestions }}"
                      data-playlist="{{ playlist }}">
@@ -14,7 +12,7 @@
                 <p>
                     <button type="button" class="btn btn-primary" id="add-btn">Add to playlist</button>
                 </p>
-                <div class="row" id="populate-container">
+                <div class="row logo-container" id="populate-container" >
                     <h1>Suggest based on </h1>
                 </div>
                 <div class="list-group" id="songs">
@@ -39,11 +37,8 @@
                     playlist</a>
                 </p>
             </div>
-        </section>
-    </div>
 {% endblock %}
 {% block footer %}
     {{ super() }}
-    <script src="../static/js/create_playlist.js"></script>
-
+    <script src="../js/create_playlist.js"></script>
 {% endblock %}

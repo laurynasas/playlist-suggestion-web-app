@@ -2,22 +2,21 @@
 {% block body %}
     {{ super() }}
 
-    <div class="jumbotron">
 
         <h1>Select a playlist</h1>
-
         <div class="list-group" id="songs">
             {% for playlist in playlists %}
                 <a href="#" data-playlist-id="{{ playlist._id }}" class="list-group-item">{{ playlist._title }}</a>
             {% endfor %}
         </div>
-        <a class="btn btn-lg btn-success" href="#" id="submit-playlist-selection-btn" role="button">Submit my selection</a>
+        <a class="btn btn-lg btn-success" href="#" id="submit-playlist-selection-btn" role="button">Submit my
+            selection</a>
+        <div class="error-container"><h6 class="error-message"> </h6></div>
 
-    </div>
 
 {% endblock %}
 {% block footer %}
     {{ super() }}
-    <script src="../static/js/display_playlists.js"></script>
+    <script src="js/display_playlists.js"></script>
 
 {% endblock %}

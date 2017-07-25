@@ -19,9 +19,9 @@ def load_songs(songs_file_dir, sources_to_load, network):
 
     sources = 0
     source = None
+    line_counter = 0
     while sources != sources_to_load:
-        title = songs_content[sources].replace("\n", "")
-
+        title = songs_content[line_counter].replace("\n", "")
         if Text.SOURCE_MARKER in title:
             title = title.replace(Text.SOURCE_MARKER, "")
             source = network.get_member_by_title(title)
@@ -30,3 +30,4 @@ def load_songs(songs_file_dir, sources_to_load, network):
             song = Song(title, source.get_title())
             source.append_song(song)
             network.register_new_song(song)
+        line_counter += 1

@@ -1,11 +1,10 @@
-from copy import deepcopy
 
 import numpy as np
-from network import load_network
-from song import load_songs
-
+from application import db
+from application.models.database import Artist
 NUMBER_SOURCES = 20000
-
+import time
+from scoring import calculate_score
 
 def get_n_list_intersection(dics):
     lists = []
@@ -34,7 +33,7 @@ def get_total_suggestions(all_intersections):
     for chunk in all_intersections:
         for band in chunk:
             if band.get_title() not in already_visited:
-                total_suggestions += len(band.get_outgoing_neighbours())
+                total_suggestions += len(band.get_similar_artists())
                 already_visited.append(band.get_title())
 
     return already_visited, total_suggestions
@@ -47,7 +46,7 @@ def get_number_of_songs_from_list_artists(artists):
     return number_songs
 
 
-def get_suggestions(required_suggestions, required_unique_bands, playlist, network, chunk_size=3):
+def get_suggestions(required_suggestions, required_unique_bands, playlist, chunk_size=3):
 
     chunks = chunkify_playlist(playlist, chunk_size)
 
@@ -59,17 +58,27 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, netwo
         all_intersections = []
         for chunk in chunks:
             neighbours = []
+            neighbour_rankings = {}
             for artist in chunk:
-                source = network.get_source_by_title(artist)
-                if source:
-                    neighbours.append(network.get_source_by_title(artist).get_n_order_neighbours(order, network))
+                source = db.query(Artist).filter(Artist.title == artist).first()
+                if source and source.similar_artists.all():
+                    n_similar_artists, rankings = source.get_n_order_similar_artists(order)
+                    neighbours.append(n_similar_artists)
+                    neighbour_rankings[source.get_title()] = rankings
             if not neighbours:
-                return
-            all_intersections.append(get_n_list_intersection(neighbours))
+                continue
+            intersection = get_n_list_intersection(neighbours)
+            scores = []
+            for prospect_suggestion in intersection:
+                scores.append(calculate_score(prospect_suggestion, neighbour_rankings))
+            scores, ranked_intersection = zip(*sorted(zip(scores, intersection)))
+            ranked_intersection = list(ranked_intersection)
+            all_intersections.append(ranked_intersection)
 
         unique_bands, possible_suggestions = get_total_suggestions(all_intersections)
         nu_unique_bands = len(unique_bands)
         order += 1
+
 
     suggestions = []
     possible_suggestions = 0
@@ -90,10 +99,11 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, netwo
 
         possible_suggestions = get_number_of_songs_from_list_artists(bands)
 
+
     all_songs = []
     all_songs_artists = []
     for artist in bands:
-        all_songs.append(deepcopy(artist.get_songs()))
+        all_songs.append(artist.get_songs())
         all_songs_artists.append(artist)
 
     while len(suggestions) < required_suggestions:
@@ -105,13 +115,11 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, netwo
 
 
 def main():
-    network = load_network("resources/network.txt", NUMBER_SOURCES)
-    load_songs("resources/songs_already_visited.txt", NUMBER_SOURCES, network)
 
     playlist = ["Jon Hopkins", "Radiohead", "Tame Impala", "Bonobo", "Coldplay", "Bon Iver", "Nirvana", "David Bowie",
                 "The xx"]
 
-    suggestions = get_suggestions(required_suggestions=10, required_unique_bands=20, playlist=playlist, network=network)
+    suggestions = get_suggestions(required_suggestions=10, required_unique_bands=20, playlist=playlist)
     print [el[0].get_title() + " by " + el[1].get_title() for el in suggestions]
 
 

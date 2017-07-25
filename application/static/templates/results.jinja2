@@ -8,7 +8,7 @@
 
             <div class="list-group" id="result-songs">
                 {% for song in result_playlist %}
-                    <a href="#" class="list-group-item">{{ song._title }} by <b>{{ song._artist }}</b></a>
+                    <a href="#" class="list-group-item">{{ song.title }} by <b>{{ song.artist_title }}</b></a>
                 {% endfor %}
             </div>
 

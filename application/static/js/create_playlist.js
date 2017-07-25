@@ -5,7 +5,6 @@ $(document).ready(function () {
     var replace_content = "<h1>Import playlist: </h1><a href='/select-playlist'><img src='../images/youtube-icon.png' style='width:100px;height:100px;'></a>";
 
 
-
     function remove_title() {
         var val = $(this).parent().attr('value');
         console.log("Will try to remove: " + val);
@@ -18,7 +17,7 @@ $(document).ready(function () {
         $(this).parent().fadeOut(500);
 
         console.log(playlist.length, replace_content);
-        if (playlist.length == 0 || playlist[0] == "") {
+        if (playlist.length == 0 || (playlist.length == 1 && playlist[0] == "")) {
             $('#populate-container h1').fadeOut(300, function () {
                 $('#populate-container h1').replaceWith(replace_content).fadeIn(300);
             });
@@ -27,20 +26,29 @@ $(document).ready(function () {
     }
 
     var playlist = $('#search-box').data()['playlist'];
-    playlist = playlist.substring(3, playlist.length - 2).split("', u'");
+    playlist = playlist.substring(1, playlist.length - 2).split("', u'");
 
-    console.log(playlist.length);
-    if (playlist ==null || playlist.length == 0 || playlist[0] ==""){
+    if (playlist == null || playlist.length == 0 || playlist[0] == "") {
         $('#populate-container h1').replaceWith(replace_content);
     }
 
-    var availableTags = $('#search-box').data()['suggestions'];
-    availableTags = availableTags.substring(2, availableTags.length - 2).split("', '");
+    // var availableTags = $('#search-box').data()['suggestions'];
+
+
+    // availableTags = availableTags.substring(3, availableTags.length - 2).split("', u'");
 
     $("#tags").autocomplete({
         source: function (request, response) {
-            var results = $.ui.autocomplete.filter(availableTags, request.term);
-            response(results.slice(0, 10));
+            var results = $.ajax({
+                url: '/get-suggestions',
+                dataType: "json",
+                data: {term: request.term},
+                success: function (data) {
+                    var results = $.ui.autocomplete.filter(data['suggestions'], request.term);
+                    response(results.slice(0, 10));
+                }
+            });
+
         }
     });
 
@@ -58,9 +66,9 @@ $(document).ready(function () {
 
                 var populate_container = $('#populate-container h1');
                 console.log(populate_container.text());
-                if (playlist.length !=0 && populate_container.text() == "Import playlist: ") {
+                if (playlist.length != 0 && populate_container.text() == "Import playlist: ") {
                     populate_container.fadeOut(300, function () {
-                        $('#populate-container').replaceWith("<div class='row' id='populate-container'><h1>Suggest based on: </h1></div>").fadeIn(300);
+                        $('#populate-container').replaceWith("<div class='row logo-container' id='populate-container'><h1>Suggest based on: </h1></div>").fadeIn(300);
                     });
                 }
 

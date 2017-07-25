@@ -9,16 +9,26 @@ function post_to_url(path, params, method) {
 
     form.setAttribute("method", method);
     form.setAttribute("action", path);
-
+    form.setAttribute("id", "playlist-form");
+    console.log($.type(params['playlist_id']));
     for (var key in params) {
         var hiddenField = document.createElement("input");
         hiddenField.setAttribute("type", "hidden");
         hiddenField.setAttribute("name", key);
         hiddenField.setAttribute("value", params[key]);
+        hiddenField.required = true;
+
 
         form.appendChild(hiddenField);
     }
-
+    console.log(form);
+    // console.log("Will validate")
+    // $('#playlist-form').validate({
+    //     rules:{
+    //         playlist_id: "required"
+    //     }
+    // });
+    console.log("ss");
     document.body.appendChild(form);
     form.submit();
 }
@@ -29,10 +39,10 @@ $(document).ready(function () {
     var previous_selection;
 
     $(".list-group a").click(function () {
-        if (previous_selection){
+        if (previous_selection) {
             $(previous_selection).removeClass("active");
         }
-        selected_playlist =  $(this).data("playlist-id");
+        selected_playlist = $(this).data("playlist-id");
         $(this).addClass("active");
         console.log("You selected " + selected_playlist);
         previous_selection = this;
@@ -40,9 +50,16 @@ $(document).ready(function () {
 
 
     $("#submit-playlist-selection-btn").click(function () {
-        console.log("Will submit the playlist_id" + selected_playlist);
+        if (typeof selected_playlist == "undefined") {
+            $(".error-container .error-message").text("Please select playlist");
+            $(".error-message").stop().css("color", "#FC0404")
+                .animate({color: "#eee"}, 1500);
+            console.log("Will submit the playlist_id" + selected_playlist);
 
-        post_to_url("/", {playlist_id: selected_playlist});
+        } else {
+            console.log(selected_playlist);
+            post_to_url("/", {playlist_id: selected_playlist});
+        }
 
     });
 });
