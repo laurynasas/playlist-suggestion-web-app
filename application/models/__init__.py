@@ -70,8 +70,8 @@ def initialize_sql(engine):
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
 
-    # try:
-    #     populate()
-    # except IntegrityError:
-    #     print "Some entries already exists in database"
-    # db.commit()
+    try:
+        populate()
+    except IntegrityError:
+        print "Some entries already exists in database"
+    db.commit()
