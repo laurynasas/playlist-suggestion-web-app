@@ -1,10 +1,11 @@
-
 import numpy as np
 from application import db
 from application.models.database import Artist
+
 NUMBER_SOURCES = 20000
-import time
+# import time
 from scoring import calculate_score
+
 
 def get_n_list_intersection(dics):
     lists = []
@@ -47,7 +48,6 @@ def get_number_of_songs_from_list_artists(artists):
 
 
 def get_suggestions(required_suggestions, required_unique_bands, playlist, chunk_size=3):
-
     chunks = chunkify_playlist(playlist, chunk_size)
 
     order = 2
@@ -79,7 +79,6 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, chunk
         nu_unique_bands = len(unique_bands)
         order += 1
 
-
     suggestions = []
     possible_suggestions = 0
     nu_bands_included = 0
@@ -99,7 +98,6 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, chunk
 
         possible_suggestions = get_number_of_songs_from_list_artists(bands)
 
-
     all_songs = []
     all_songs_artists = []
     for artist in bands:
@@ -115,7 +113,6 @@ def get_suggestions(required_suggestions, required_unique_bands, playlist, chunk
 
 
 def main():
-
     playlist = ["Jon Hopkins", "Radiohead", "Tame Impala", "Bonobo", "Coldplay", "Bon Iver", "Nirvana", "David Bowie",
                 "The xx"]
 
