@@ -4,9 +4,7 @@ __pycache__/
 db.sqlite3
 migrations/
 media/
-settings.py
 # C extensions
-*.so
 *.json
 *.txt
 # Distribution / packaging
@@ -20,7 +18,6 @@ eggs/
 .eggs/
 lib64/
 parts/
-external_dependancies/
 sdist/
 var/
 *.egg-info/
@@ -57,7 +54,6 @@ docs/_build/
 
 # PyBuilder
 target/
-*.png
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
