@@ -37,6 +37,7 @@ $(document).ready(function () {
 
     var selected_playlist;
     var previous_selection;
+    var api = $("#songs").data("api");
 
     $(".list-group a").click(function () {
         if (previous_selection) {
@@ -57,8 +58,8 @@ $(document).ready(function () {
             console.log("Will submit the playlist_id" + selected_playlist);
 
         } else {
-            console.log(selected_playlist);
-            post_to_url("/", {playlist_id: selected_playlist});
+            console.log("api"+api);
+            post_to_url("/", {playlist_id: selected_playlist, api: api});
         }
 
     });

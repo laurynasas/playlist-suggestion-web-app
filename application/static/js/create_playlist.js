@@ -2,14 +2,17 @@
  * Created by laurynas on 7/19/17.
  */
 $(document).ready(function () {
-    var replace_content = "<h1>Import playlist: </h1><a href='/select-playlist'><img src='../images/youtube-icon.png' style='width:100px;height:100px;'></a>";
+    var replace_content = "<h1>Import playlist: </h1><a href='/select-playlist'><img src='../images/youtube-icon.png' style='width:100px;height:100px;'></a>" +
+                                                    "<a href='/spotify-auth'><img src='../images/spotify-icon.png' style='width:100px;height:100px;'></a>";
 
 
     function remove_title() {
         var val = $(this).parent().attr('value');
-        console.log("Will try to remove: " + val);
+        console.log("Will try to remove: ");
+        console.log(val);
 
         var index = playlist.indexOf(val);
+        console.log(index);
         if (index != -1) {
             playlist.splice(index, 1);
         }
@@ -26,9 +29,13 @@ $(document).ready(function () {
     }
 
     var playlist = $('#search-box').data()['playlist'];
-    playlist = playlist.substring(1, playlist.length - 2).split("', u'");
-
-    if (playlist == null || playlist.length == 0 || playlist[0] == "") {
+    if (typeof playlist == "string" && playlist !=""){
+        playlist = JSON.parse(playlist);
+    }else if (typeof playlist == "string" && playlist ==""){
+        playlist = [];
+    }
+    console.log(playlist);
+    if (playlist.length == 0 ) {
         $('#populate-container h1').replaceWith(replace_content);
     }
 
@@ -62,7 +69,7 @@ $(document).ready(function () {
                 $(new_title).hide().appendTo("#songs").fadeIn(500);
                 $(".remove-btn").on('click', remove_title);
                 $("#add-btn").off("click");
-                playlist.push(ui.item.value);
+                    playlist.push(ui.item.value);
 
                 var populate_container = $('#populate-container h1');
                 console.log(populate_container.text());

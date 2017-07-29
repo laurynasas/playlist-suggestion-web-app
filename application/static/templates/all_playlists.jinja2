@@ -4,7 +4,7 @@
 
 
         <h1>Select a playlist</h1>
-        <div class="list-group" id="songs">
+        <div class="list-group" id="songs" data-api="{{ api }}">
             {% for playlist in playlists %}
                 <a href="#" data-playlist-id="{{ playlist._id }}" class="list-group-item">{{ playlist._title }}</a>
             {% endfor %}

@@ -31,6 +31,10 @@ def main(global_config, **settings):
 
     config.add_route('results', '/result-playlist')
     config.add_route('select_playlist', '/select-playlist')
+    config.add_route('select_spotify_playlist', '/select-spotify-playlist')
+    config.add_route('refresh_spotify_token','/refresh-spotify-token')
+    config.add_route('spotify_redirect', '/spotify-auth')
+    config.add_route('spotify_callback', '/spotify-callback')
 
     config.add_route('selected_playlist', '/show-selected-playlist')
     config.add_route('authorized', '/authorized')
