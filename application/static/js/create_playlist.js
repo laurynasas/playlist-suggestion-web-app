@@ -2,8 +2,8 @@
  * Created by laurynas on 7/19/17.
  */
 $(document).ready(function () {
-    var replace_content = "<h1>Import playlist: </h1><a href='/select-playlist'><img src='../images/youtube-icon.png' style='width:100px;height:100px;'></a>" +
-                                                    "<a href='/spotify-auth'><img src='../images/spotify-icon.png' style='width:100px;height:100px;'></a>";
+    var replace_content = "<h1>Import playlist: </h1><col><a href='/select-playlist' class='btn'><img class='youtube' src='../images/youtube-logo.png'></a></col>" +
+                                                    "<col><a href='/spotify-auth' class='btn spotify-btn'><img class='spotify' src='../images/spotify-logo.png'></a></col>";
 
 
     function remove_title() {
@@ -29,13 +29,13 @@ $(document).ready(function () {
     }
 
     var playlist = $('#search-box').data()['playlist'];
-    if (typeof playlist == "string" && playlist !=""){
+    if (typeof playlist == "string" && playlist != "") {
         playlist = JSON.parse(playlist);
-    }else if (typeof playlist == "string" && playlist ==""){
+    } else if (typeof playlist == "string" && playlist == "") {
         playlist = [];
     }
     console.log(playlist);
-    if (playlist.length == 0 ) {
+    if (playlist.length == 0) {
         $('#populate-container h1').replaceWith(replace_content);
     }
 
@@ -46,7 +46,7 @@ $(document).ready(function () {
 
     $("#tags").autocomplete({
         source: function (request, response) {
-            var results = $.ajax({
+            $.ajax({
                 url: '/get-suggestions',
                 dataType: "json",
                 data: {term: request.term},
@@ -69,7 +69,7 @@ $(document).ready(function () {
                 $(new_title).hide().appendTo("#songs").fadeIn(500);
                 $(".remove-btn").on('click', remove_title);
                 $("#add-btn").off("click");
-                    playlist.push(ui.item.value);
+                playlist.push(ui.item.value);
 
                 var populate_container = $('#populate-container h1');
                 console.log(populate_container.text());

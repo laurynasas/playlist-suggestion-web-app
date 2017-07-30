@@ -40,9 +40,7 @@ $(document).ready(function () {
     var api = $("#songs").data("api");
 
     $(".list-group a").click(function () {
-        if (previous_selection) {
-            $(previous_selection).removeClass("active");
-        }
+
         selected_playlist = $(this).data("playlist-id");
         $(this).addClass("active");
         console.log("You selected " + selected_playlist);

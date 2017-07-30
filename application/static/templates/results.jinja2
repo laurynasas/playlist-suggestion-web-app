@@ -8,7 +8,11 @@
 
             <div class="list-group" id="result-songs">
                 {% for song in result_playlist %}
-                    <a href="#" class="list-group-item">{{ song.title }} by <b>{{ song.artist_title }}</b></a>
+                    <div class="result-song list-group-item">
+                        <a href="#" >{{ song.title }} by
+                            <b>{{ song.artist_title }}</b></a>
+                        <div class="preview-container" style="display: none;"></div>
+                    </div>
                 {% endfor %}
             </div>
 
@@ -19,4 +23,9 @@
         <a class="btn btn-lg btn-success" href="/" id="do-again-btn" role="button">Try again!</a>
 
     </div>
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+    <script src="js/results.js"></script>
+
 {% endblock %}

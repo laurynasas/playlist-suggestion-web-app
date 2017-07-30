@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
 
 class Playlist(object):
@@ -42,7 +42,7 @@ class YoutubePlaylist(Playlist):
         songs = []
         black_list = ['deleted video']
         replace_list = ['with lyrics', 'official video', 'official audio', 'official music video', 'music video',
-                        'out now',
+                        'out now', 'private video',
                         'explicit', '(audio)', '(music)', '(video)', 'extended versions']
         leading_symbols = '({[]})'
         word_separators = ["-", " "]
