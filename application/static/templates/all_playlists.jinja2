@@ -2,8 +2,9 @@
 {% block body %}
     {{ super() }}
 
-
+    {% if playlists %}
         <h1>Select a playlist</h1>
+
         <div class="list-group" id="songs" data-api="{{ api }}">
             {% for playlist in playlists %}
                 <a href="#" data-playlist-id="{{ playlist._id }}" class="list-group-item">{{ playlist._title }}</a>
@@ -11,8 +12,12 @@
         </div>
         <a class="btn btn-lg btn-success" href="#" id="submit-playlist-selection-btn" role="button">Submit my
             selection</a>
-        <div class="error-container"><h6 class="error-message"> </h6></div>
-
+        <div class="error-container"><h6 class="error-message"></h6></div>
+    {% else %}
+        <h1>We didn't find any playlists :((</h1>
+        <h2> Try different login or find artists in our search</h2>
+        <a class="btn btn-lg btn-success" href="/" id="do-again-btn" role="button">Try again!</a>
+    {% endif %}
 
 {% endblock %}
 {% block footer %}

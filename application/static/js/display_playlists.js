@@ -34,13 +34,16 @@ function post_to_url(path, params, method) {
 }
 
 $(document).ready(function () {
+    $('.to-show').animate({"opacity": "1"}, 500);
 
     var selected_playlist;
     var previous_selection;
     var api = $("#songs").data("api");
 
     $(".list-group a").click(function () {
-
+        if (previous_selection) {
+            $(previous_selection).removeClass("active");
+        }
         selected_playlist = $(this).data("playlist-id");
         $(this).addClass("active");
         console.log("You selected " + selected_playlist);

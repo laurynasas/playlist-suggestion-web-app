@@ -30,7 +30,7 @@ class TutorialViews:
     @view_config(route_name='select_playlist', renderer='all_playlists.jinja2')
     def select_youtube_playlist(self):
 
-        if 'credentials' not in self.request.session:
+        if not self.request.session.get('credentials'):
             return HTTPFound(location=self.request.route_url('redirect'))
         credentials = client.OAuth2Credentials.from_json(self.request.session['credentials'])
         if credentials.access_token_expired:
@@ -45,5 +45,6 @@ class TutorialViews:
                                                  mine=True)
 
             playlists_instances = create_playlists(YoutubePlaylist, playlists_info)
-
+            if not playlists_instances:
+                self.request.session['credentials'] = None
             return {'playlists': playlists_instances, 'api': 'youtube'}

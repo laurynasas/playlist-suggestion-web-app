@@ -17,6 +17,7 @@ from controllers.get_youtube_playlist import playlist_items_list_by_playlist_id
 
 xSPOTIFY_API_BASE_URL = "https://api.spotify.com"
 API_VERSION = "v1"
+SPOTIFY_API_BASE_URL = "https://api.spotify.com"
 SPOTIFY_API_URL = "{}/{}".format(SPOTIFY_API_BASE_URL, API_VERSION)
 
 # -------------------------------------------------------------------------------------

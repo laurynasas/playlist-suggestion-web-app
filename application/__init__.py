@@ -1,11 +1,11 @@
 import subprocess
-
-from models import initialize_sql
+from sqlalchemy.exc import IntegrityError
+from populate_db import populate
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from sqlalchemy import engine_from_config
 
-from .models import (
+from .models.database import (
     Base,
 )
 from application.models.database import db
@@ -18,7 +18,18 @@ def main(global_config, **settings):
                           session_factory=my_session_factory)
 
     engine = engine_from_config(settings, 'sqlalchemy.')
-    initialize_sql(engine)
+    db.configure(bind=engine)
+    Base.metadata.bind = engine
+    Base.metadata.create_all(engine)
+
+
+    # try:
+    #     populate()
+    # except IntegrityError:
+    #     print "Some entries already exists in database"
+    # db.commit()
+
+
 
     config.include('pyramid_jinja2')
     config.add_jinja2_search_path("static/templates")
@@ -29,7 +40,8 @@ def main(global_config, **settings):
     config.add_route('playlists', '/playlists')
     config.add_route('suggestions', '/get-suggestions')
 
-    config.add_route('results', '/result-playlist')
+    config.add_route('display_results', '/result-playlist')
+    config.add_route('compute_results', '/compute-results')
     config.add_route('select_playlist', '/select-playlist')
     config.add_route('select_spotify_playlist', '/select-spotify-playlist')
     config.add_route('refresh_spotify_token','/refresh-spotify-token')
@@ -37,7 +49,6 @@ def main(global_config, **settings):
     config.add_route('spotify_redirect', '/spotify-redirect')
 
     config.add_route('spotify_callback', '/spotify-callback')
-    config.add_route('get_preview_url', '/get-preview-url')
 
 
     config.add_route('selected_playlist', '/show-selected-playlist')

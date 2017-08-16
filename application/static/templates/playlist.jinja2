@@ -3,16 +3,16 @@
     {{ super() }}
 
     <div id="guts">
+        <h2>Search for the song</h2>
         <div class="form-group ui-widget" id="search-box" data-suggestions="{{ suggestions }}"
              data-playlist="{{ playlist_string }}">
-            <label for="tags">Search for the song</label>
             <input class="form-control autocomplete" id="tags">
 
         </div>
         <p>
             <button type="button" class="btn btn-primary" id="add-btn">Add to playlist</button>
         </p>
-        <div class="row logo-container" id="populate-container">
+        <div class="row logo-container text-center" id="populate-container">
             <h1>Suggest based on </h1>
         </div>
         <div class="list-group" id="songs">
@@ -27,6 +27,7 @@
             {% endfor %}
 
         </div>
+        <div class="suggestion-params" style="display: none;">
         <p>
             Suggestions:
             <input type="number" name="quantity" min="1" max="50" value="10" id="limit-input"/>
@@ -37,6 +38,7 @@
         <p><a class="btn btn-lg btn-success" href="#" id="submit-playlist-btn" role="button">Submit the
             playlist</a>
         </p>
+        </div>
     </div>
 {% endblock %}
 {% block footer %}

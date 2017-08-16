@@ -8,7 +8,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref, scoped_session, sessionmaker
-
+import time
+import json
 db = scoped_session(sessionmaker())
 Base = declarative_base()
 
@@ -21,6 +22,7 @@ followers = Table('followers',
 
 class Artist(Base):
     __tablename__ = 'artist'
+    __table_args__ = {'mysql_engine': 'InnoDB'}
     id = Column(Integer, primary_key=True)
     title = Column(Text)
 
@@ -31,7 +33,8 @@ class Artist(Base):
                                    backref=backref('followers', lazy='dynamic'),
                                    lazy='dynamic')
 
-    def add_similar_artist(self, artist):
+
+    def  add_similar_artist(self, artist):
         if not self.is_following(artist):
             self.similar_artists.append(artist)
             return self
@@ -52,47 +55,23 @@ class Artist(Base):
                 return index - acc
             acc += off
 
-    def get_n_order_similar_artists(self, order, all_set=None, frontier=None):
-        # if not all_set:
-        #     all_set = {}
-        # if not frontier:
-        #     frontier = self.similar_artists.all()
-        # if order == 0:
-        #     return all_set
-        # else:
-        #     future_frontier = []
-        #     for el in frontier:
-        #         future_frontier.extend(db.query(Artist).filter(Artist.title == el.get_title()).first().get_similar_artists())
-        #         if not all_set.get(el.get_title()):
-        #             all_set[el.get_title()] = el
-        #     return self.get_n_order_similar_artists(order - 1, all_set, future_frontier)
+    def get_n_order_similar_artists(self, order):
         frontier = self.similar_artists.all()
-        # frontier_offsets = [len(frontier)]
         all_set = {}
         scores = {}
         offset = 0
         for i in xrange(order):
             future_frontier = []
-            # future_frontier_offsets = []
             for index, el in enumerate(frontier):
                 if i != order - 1:
-                    similar_artists = db.query(Artist).filter(
-                        Artist.title == el.get_title()).first().get_similar_artists()
-                    # future_frontier_offsets.append(len(similar_artists))
-                    # for child in similar_artists:
-                    #     paths[child.get_title()] = {'parent': el.get_title()}
-
+                    s = time.time()
+                    similar_artists = el.similar_artists.all()
+                    print "retrieval:", time.time() - s
                     future_frontier.extend(similar_artists)
                 if not all_set.get(el.get_title()):
                     all_set[el.get_title()] = el
                     scores[el.get_title()] = offset + index
-                    # offset, parent_index = self.get_offset(frontier_offsets, index)
-                    # if i == 0:
-                    #     paths[el.get_title()] = {}
-                    # else:
-                    #     paths[el.get_title()] = paths[paths[el.get_title()]['parent']]
-                    # if not paths[el.get_title()].get(i + 1):
-                    #     paths[el.get_title()][i + 1] = self.get_offset(frontier_offsets, index)
+
             offset = len(frontier)
             frontier = future_frontier
         return all_set, scores
@@ -108,6 +87,12 @@ class Song(Base):
     artist_title = Column(Text)
     title = Column(Text)
     artist = relationship('Artist', backref='songs')
+    preview_url = Column(Text, default=None)
 
+    def get_full_title(self):
+        return self.artist_title + " - " + self.title
 
-Index('my_index', Artist.id, unique=True, mysql_length=255)
+    def to_json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+Index('follower_id_index', followers.c.follower_id, mysql_length=255)
