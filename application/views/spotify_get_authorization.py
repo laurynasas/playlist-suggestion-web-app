@@ -19,7 +19,7 @@ SPOTIFY_API_URL = "{}/{}".format(SPOTIFY_API_BASE_URL, API_VERSION)
 
 CLIENT_SECRETS_SPOTIFY = "d1e31b8f48b24e15aaa7c211b9970e8b"
 CLIENT_ID_SPOTIFY = "b774e3bf851646c1b02928ea75802587"
-CLIENT_SIDE_URL = "http://localhost"
+CLIENT_SIDE_URL = "http://playgen.eu-west-2.elasticbeanstalk.com"
 PORT = 8080
 REDIRECT_URI = "{}:{}/spotify-callback".format(CLIENT_SIDE_URL, PORT)
 SCOPE = "playlist-modify-public playlist-modify-private"
